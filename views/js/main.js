@@ -493,8 +493,14 @@ function updatePositions() {
 
   var items = document.querySelectorAll('.mover');
   var scrollTop = (document.body.scrollTop / 1250);
+  var phases = [];
+
+  for (var i = 0; i < 5; i++) {
+    phases[i] = Math.sin(scrollTop + (i % 5));
+  }
+
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin(scrollTop + (i % 5));
+    var phase = phases[i % 5];
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
   }
 
@@ -516,8 +522,11 @@ document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
   var movingPizza = document.querySelector("#movingPizzas1");
+  var windowHeight = window.innerHeight;
 
-  for (var i = 0; i < 200; i++) {
+  var i = 0;
+
+  for (i = 0; i < (windowHeight / s) * cols; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
@@ -527,6 +536,8 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
     movingPizza.appendChild(elem);
   }
+
+  console.log("taustapizzoja:" + i);
 
   updatePositions();
 });
