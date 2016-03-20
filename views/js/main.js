@@ -16,6 +16,8 @@ Cameron Pittman, Udacity Course Developer
 cameron *at* udacity *dot* com
 */
 
+"use strict";
+
 // As you may have realized, this website randomly generates pizzas.
 // Here are arrays of all possible pizza ingredients.
 var pizzaIngredients = {};
@@ -423,6 +425,7 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
+    //Performance optimization: remove function that used values which required layout, use percentage instead
     var newWidth = 25;
 
     switch(size) {
@@ -439,7 +442,8 @@ var resizePizzas = function(size) {
         console.log("bug in sizeSwitcher");
     }
 
-    var pizzas = document.querySelectorAll(".randomPizzaContainer");
+    //Performance optimization: don't use querySelectorAll
+    var pizzas = document.getElementsByClassName("randomPizzaContainer");
 
     for (var i = 0; i < pizzas.length; i++) {
       pizzas[i].style.width = newWidth + "%";
@@ -458,6 +462,7 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+//Performance optimization: move static variable outside loop
 var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) {
   pizzasDiv.appendChild(pizzaElementGenerator(i));
@@ -486,12 +491,15 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // The following code for sliding background pizzas was pulled from Ilya's demo found at:
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
+//Performance optimization: move static variable outside loop
+var items = document.getElementsByClassName('mover');
+
 // Moves the sliding background pizzas based on scroll position
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
+  //Performance optimization: move static variable outside loop
   var scrollTop = (document.body.scrollTop / 1250);
   var phases = [];
 
@@ -512,21 +520,23 @@ function updatePositions() {
     var timesToUpdatePosition = window.performance.getEntriesByName("measure_frame_duration");
     logAverageFrame(timesToUpdatePosition);
   }
+
+  requestAnimationFrame(updatePositions);
 }
 
 // runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
+requestAnimationFrame(updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
+  //Performance optimization: move static variable outside loop
   var movingPizza = document.querySelector("#movingPizzas1");
+  //Performance optimization: reduce amount of iterations
   var windowHeight = window.innerHeight;
 
-  var i = 0;
-
-  for (i = 0; i < (windowHeight / s) * cols; i++) {
+  for (var i = 0; i < (windowHeight / s) * cols; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
@@ -536,8 +546,6 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
     movingPizza.appendChild(elem);
   }
-
-  console.log("taustapizzoja:" + i);
 
   updatePositions();
 });
